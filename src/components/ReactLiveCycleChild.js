@@ -3,9 +3,7 @@ import React from 'react';
 class ReactLiveCycleChild extends React.Component {
 	state = {
 		buttonTitle: 'Отладочная информация в консоли браузера.',
-		cntClick: 0,
-		defaultBackgroundColor : 'white',
-		backgroundColor : 'white'
+		cntClick: 0
 	};
 //-----------------------------------------------------------------------------
 //-- Инициализация
@@ -13,10 +11,11 @@ class ReactLiveCycleChild extends React.Component {
 	constructor(props) {
 		super(props);
 		console.log('ReactLiveCycleChild/INIT/constructor', arguments);
+		this.ref = React.createRef();
 	}
 
 	/**
-	 * Для аолучения данных.
+	 * Для получения данных.
 	 * Например AJAX для извлечения данных из БД.
 	 */
 	componentWillMount() {
@@ -31,17 +30,20 @@ class ReactLiveCycleChild extends React.Component {
 		console.log('ReactLiveCycleChild/INIT|UPDATE/render', arguments);
 		// alert('ReactLiveCycleChild/render/PAUSE');
 		return (
-			<div style={{
-				display: 'inline-block',
-				border: '1px solid brown',
-				padding: '1rem',
-				margin: '1rem',
-				backgroundColor : this.state.backgroundColor
-			}}>
+			<div ref={this.ref}
+			     style={{
+				     display: 'inline-block',
+				     border: '1px solid brown',
+				     padding: '1rem',
+				     margin: '1rem',
+				     backgroundColor: 'coral'
+			     }}>
 				<h2>ReactLiveCycleChild</h2>
+
 				<button onClick={this.onCounterClick.bind(this)} title={this.state.buttonTitle}
 				>Нажми на меня!
 				</button>
+
 				<div>Нажали раз: {this.state.cntClick}</div>
 			</div>
 		)
@@ -50,9 +52,11 @@ class ReactLiveCycleChild extends React.Component {
 	/**
 	 * Компонент уже в реальном DOMе.
 	 * Инициализация завершена.
+	 * Методы работы с DOM работают и ноды находятся, но страница в этот момент еще не показывается пользователю.
 	 */
 	componentDidMount() {
 		console.log('ReactLiveCycleChild/INIT/componentDidMount', arguments);
+		this.defaultColor = this.ref.current.style.backgroundColor;
 	}
 
 //-----------------------------------------------------------------------------
@@ -87,16 +91,18 @@ class ReactLiveCycleChild extends React.Component {
 	onCounterClick() {
 		console.log('ReactLiveCycleChild/onCounterClick', arguments);
 		this.setState({
-			cntClick: this.state.cntClick + 1,
-			backgroundColor: 'coral'
+			cntClick: this.state.cntClick + 1
 		});
-		setTimeout(() => {
-			this.setState({
-				backgroundColor: this.state.defaultBackgroundColor
-			});
-		}, 500);
+		this.changeBackgroundColorByRef()
 	}
 
+	changeBackgroundColorByRef() {
+		console.log('ReactLiveCycle/changeBackgroundColorByRef', arguments);
+		this.ref.current.style.backgroundColor = 'yellow';
+		setTimeout(() => {
+			this.ref.current.style.backgroundColor = this.defaultColor;
+		}, 500);
+	}
 }
 
 export default ReactLiveCycleChild;
